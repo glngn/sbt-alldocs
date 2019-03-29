@@ -1,6 +1,8 @@
 # sbt-alldocs
 
-Put all the documentation for a project in one place. Suitable for distribution of an alldocs for an alljar (aka uberjar).
+Put all the documentation for a project in one place. Suitable for distribution of an alldocs for an
+alljar (aka uberjar). This will include all compiler version targets as well. Resulting in a large,
+but complete, set of documentation.
 
 ## Usage
 
@@ -12,6 +14,29 @@ This adds a command `allDocs` which:
 2. Expands all documentation artifacts into `allDocsTargetDir`. Which defaults to `docs`.
 3. Generates all documentation for all projects. These are copied under `allDocsTargetDir`.
 4. Finally, generates an `index.html` in `allDocsTargetDir` that is an index of all the collected documentation.
+
+### Options
+
+Note: the options refer to `name` and this is ill-defined. This is exactly the link text. Easiest to
+generate all docs then look at link text to determine `name`.
+
+* `allDocsExclusions` - Set of strings of the `name` for the document artifact to exclude.
+* `allDocsRenames` - Map of names to text. This is applied after exclusions.
+* `allDocsTargetDir` - Directory relative to root to output. Defaults to `docs`.
+* `allDocsSections` - Map of regex to (priority, section text).
+
+EG:
+
+~~~
+allDocsSections := Seq(
+    "akka-.*" -> (20, "Akka"),
+    "log4j-.*" -> (30, "Logging (Log4j 2)"),
+    "slf4j-.*" -> (30, "Logging (Log4j 2)"),
+    "scala-.*" -> (10, "Scala Standard Libraries"),
+    "scalaz-.*" -> (15, "Scalaz Libraries"),
+    ".*" -> (999, "Other Included Libraries")
+)
+~~~
 
 ## Testing
 
