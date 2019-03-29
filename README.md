@@ -32,9 +32,9 @@ Run `scripted` for [sbt script tests](http://www.scala-sbt.org/1.x/docs/Testing-
 ## Notes
 
 This command may take a while. All dependencies for all compiler targets is, even on small projects,
-a large number of files to decompress from jar files. In particular, I've found windows to take
-exceptionally slow at this. The recommended pattern is for the organizations CI/CD to update a local
-server with this.
+a large number of files to decompress from jar files. In particular, I've found windows to be
+exceptionally slow at this. The recommended pattern is for the organizations CI/CD to deploy this
+artifact to a local server.
 
 Failure to generate project documentation does not result in the command failing. The project
 documentation will be, however, missing from the index. The first part is intentional. The second
