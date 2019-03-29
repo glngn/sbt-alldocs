@@ -1,4 +1,4 @@
-package glngn.sbt
+package sbt.alldocs
 
 import sbt._
 import scala.xml
@@ -16,6 +16,7 @@ object AllDocsPlugin extends AutoPlugin {
     val allDocsExclusions = settingKey[Set[String]]("exact name, pre rename, of artifact documentation to exclude from index")
     val allDocsRenames = settingKey[Map[String, String]]("mapping of input name to output name. Applied once per artifact.")
     val allDocsSections = settingKey[Seq[SectionMap]]("names matching regex are placed under named section with sort priority")
+    val allDocsTargetDir = settingKey[String]("Directory relative to root the documentation should be placed")
   }
 
   override def projectSettings = Seq(
@@ -47,7 +48,8 @@ object AllDocsPlugin extends AutoPlugin {
     },
     allDocsSections := {
       allDocsSections.all(ScopeFilter(inAnyProject, inAnyConfiguration)).value.flatten
-    }
+    },
+    allDocsTargetDir := "docs"
   )
 
   override def trigger: PluginTrigger = allRequirements
@@ -247,6 +249,7 @@ object AllDocsPlugin extends AutoPlugin {
     val exclusions = allDocsExclusions in Global get structure.data get
     val renames = allDocsRenames in Global get structure.data get
     val sectionsDef = allDocsSections in Global get structure.data get
+    val docsDir = IO.toFile(structure.root) / (allDocsTargetDir in Global get structure.data get)
 
     val sectionSelector = sectionSelectorForDef(sectionsDef)
 
@@ -285,7 +288,6 @@ object AllDocsPlugin extends AutoPlugin {
       }
     }
 
-    val docsDir = IO.toFile(structure.root) / "docs"
     IO.createDirectory(docsDir)
 
     val indexData = allDocsIndexSource(logger,

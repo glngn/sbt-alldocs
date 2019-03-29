@@ -11,12 +11,13 @@ sbtPlugin := true
 //testFrameworks += new TestFramework("utest.runner.Framework")
 
 // ScalaTest
-//libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.1" % "test"
-//libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.1" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 
 // Specs2
 //libraryDependencies ++= Seq("org.specs2" %% "specs2-core" % "3.9.1" % "test")
-//scalacOptions in Test ++= Seq("-Yrangepos")
+
+scalacOptions in Test ++= Seq("-Yrangepos")
 
 bintrayPackageLabels := Seq("sbt","plugin")
 bintrayVcsUrl := Some("""git@github.com:sbt/sbt-alldocs.git""")
