@@ -1,4 +1,4 @@
-package sbt.alldocs
+package sbtalldocs
 
 import sbt._
 import scala.xml
