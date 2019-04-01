@@ -1,0 +1,3 @@
+# generate all docs and check for resulting index.html
+> allDocs
+$ exists docs/index.html

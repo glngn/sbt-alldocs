@@ -1,6 +1,8 @@
 name := """sbt-alldocs"""
-organization := "sbt"
-version := "0.1-SNAPSHOT"
+ThisBuild / organization := "coreyoconnor"
+ThisBuild / version := "0.1-SNAPSHOT"
+ThisBuild / description := "Collect all docs into docs"
+ThisBuild / licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
 
 sbtPlugin := true
 
