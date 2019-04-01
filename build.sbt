@@ -13,7 +13,7 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 scalacOptions in Test ++= Seq("-Yrangepos")
 
 bintrayPackageLabels := Seq("sbt","plugin")
-bintrayVcsUrl := Some("""git@github.com:sbt/sbt-alldocs.git""")
+bintrayVcsUrl := Some("""git@github.com:glngn/sbt-alldocs.git""")
 bintrayOrganization in bintray := None
 publishMavenStyle := false
 
