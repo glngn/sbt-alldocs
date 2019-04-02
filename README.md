@@ -6,6 +6,10 @@ but complete, set of documentation.
 
 ## Usage
 
+~~~
+addSbtPlugin("com.glngn" % "sbt-alldocs" % "0.1.3")
+~~~
+
 This plugin requires sbt 1.0.0+
 
 This adds a command `allDocs` which:
@@ -46,10 +50,10 @@ Run `scripted` for [sbt script tests](http://www.scala-sbt.org/1.x/docs/Testing-
 
 ## TODO
 
-1. [request inclusion in sbt-plugin-releases](https://bintray.com/sbt/sbt-plugin-releases)
-    - in progress
 2. [Add your plugin to the community plugins list](https://github.com/sbt/website#attention-plugin-authors)
+    - in progress
 3. [Claim your project an Scaladex](https://github.com/scalacenter/scaladex-contrib#claim-your-project)
+    - in progress
 
 ## Notes
 
