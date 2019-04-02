@@ -1,8 +1,8 @@
 # sbt-alldocs
 
-Put all the documentation for a project in one place. Suitable for distribution of an alldocs for an
-alljar (aka uberjar). This will include all compiler version targets as well. Resulting in a large,
-but complete, set of documentation.
+Put all the documentation for a project in one place. Defaults to a `docs` folder under project root.
+Suitable for distribution of an alldocs for an alljar (aka uberjar). This will include all compiler
+version targets as well. Resulting in a large, but complete, set of documentation.
 
 ## Usage
 

@@ -21,7 +21,7 @@ initialCommands in console := """import sbtalldocs._"""
 enablePlugins(ScriptedPlugin)
 enablePlugins(GitVersioning)
 
-git.baseVersion := "0.1.3"
+git.baseVersion := "0.1.4"
 
 // set up 'scripted; sbt plugin for testing sbt plugins
 scriptedLaunchOpts ++=
