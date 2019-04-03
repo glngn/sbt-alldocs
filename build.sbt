@@ -1,5 +1,5 @@
 name := """sbt-alldocs"""
-ThisBuild / organization := "com.glngn"
+ThisBuild / organization := "glngn"
 ThisBuild / description := "Collect all docs into docs"
 ThisBuild / licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
 
