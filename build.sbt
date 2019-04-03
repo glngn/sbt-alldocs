@@ -13,7 +13,8 @@ scalacOptions in Test ++= Seq("-Yrangepos")
 
 bintrayPackageLabels := Seq("sbt","plugin")
 bintrayVcsUrl := Some("""git@github.com:glngn/sbt-alldocs.git""")
-bintrayOrganization in bintray := None
+bintrayOrganization := Some("glngn")
+bintrayRepository := "sbt-plugins"
 publishMavenStyle := false
 
 initialCommands in console := """import sbtalldocs._"""
