@@ -7,7 +7,7 @@ version targets as well. Resulting in a large, but complete, set of documentatio
 ## Usage
 
 ~~~
-addSbtPlugin("com.glngn" % "sbt-alldocs" % "0.1.3")
+addSbtPlugin("glngn" % "sbt-alldocs" % "0.1.5")
 ~~~
 
 This plugin requires sbt 1.0.0+
@@ -51,9 +51,7 @@ Run `scripted` for [sbt script tests](http://www.scala-sbt.org/1.x/docs/Testing-
 ## TODO
 
 2. [Add your plugin to the community plugins list](https://github.com/sbt/website#attention-plugin-authors)
-    - in progress
 3. [Claim your project an Scaladex](https://github.com/scalacenter/scaladex-contrib#claim-your-project)
-    - in progress
 
 ## Notes
 
