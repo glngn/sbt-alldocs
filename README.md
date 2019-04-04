@@ -4,6 +4,10 @@ Put all the documentation for a project in one place. Defaults to a `docs` folde
 Suitable for distribution of an alldocs for an alljar (aka uberjar). This will include all compiler
 version targets as well. Resulting in a large, but complete, set of documentation.
 
+EG: screenshot of a generated `docs/index.html` for a project:
+
+![index screenshot](https://github.com/glngn/sbt-alldocs/raw/master/screenshot.png "Screenshot of an example index")
+
 ## Usage
 
 ~~~
