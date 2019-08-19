@@ -1,3 +1,6 @@
 # generate all docs and check for resulting index.html
 > allDocs
+# $ pause
 $ exists docs/index.html
+$ exists docs/scala2_12
+$ exists docs/org.scala-lang.scala-library/index.html
