@@ -36,20 +36,23 @@ object AllDocsPlugin extends AutoPlugin {
     allDocsSections := Seq.empty[SectionMap]
   )
 
+  // too broad
+  val scopeToAggregrate = ScopeFilter(inAnyProject, inAnyConfiguration)
+
   override def globalSettings = Seq(
     commands += allDocsCmd,
     allDocsExclusions := {
-      allDocsExclusions.all(ScopeFilter(inAnyProject, inAnyConfiguration)).value.toSet.flatten
+      (allDocsExclusions ?? Set.empty[String]).all(scopeToAggregrate).value.toSet.flatten
     },
     allDocsRenames := {
-      allDocsRenames.all(ScopeFilter(inAnyProject, inAnyConfiguration))
+      (allDocsRenames ?? Map.empty[String, String]).all(scopeToAggregrate)
         .value
         .foldLeft(Map.empty[String, String])( (acc, renames) => acc ++ renames )
     },
     allDocsSections := {
-      allDocsSections.all(ScopeFilter(inAnyProject, inAnyConfiguration)).value.flatten
+      (allDocsSections ?? Seq.empty[SectionMap]).all(scopeToAggregrate).value.flatten
     },
-    allDocsTargetDir := "docs"
+    allDocsTargetDir := "alldocs"
   )
 
   override def trigger: PluginTrigger = allRequirements
