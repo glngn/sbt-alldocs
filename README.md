@@ -11,7 +11,7 @@ EG: screenshot of the generated `alldocs/index.html` for [docs.glngn.com](http:/
 ## Usage
 
 ~~~
-addSbtPlugin("glngn" % "sbt-alldocs" % "0.1.5")
+addSbtPlugin("glngn" % "sbt-alldocs" % "0.2.0")
 ~~~
 
 This plugin requires sbt 1.0.0+

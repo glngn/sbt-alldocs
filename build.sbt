@@ -6,8 +6,8 @@ ThisBuild / licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICE
 sbtPlugin := true
 
 // ScalaTest
-libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.1" % "test"
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.8" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 
 scalacOptions in Test ++= Seq("-Yrangepos")
 
@@ -16,6 +16,8 @@ bintrayVcsUrl := Some("""git@github.com:glngn/sbt-alldocs.git""")
 bintrayOrganization := Some("glngn")
 bintrayRepository := "sbt-plugins"
 publishMavenStyle := false
+crossSbtVersions := Vector("1.2.8", "1.3.2")
+crossScalaVersions := Vector("2.12.10")
 
 initialCommands in console := """import sbtalldocs._"""
 
