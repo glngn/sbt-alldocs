@@ -1,10 +1,10 @@
 # sbt-alldocs
 
-Put all the documentation for a project in one place. Defaults to a `docs` folder under project root.
+Put all the documentation for a project in one place. Defaults to an `alldocs` folder under project root.
 Suitable for distribution of an alldocs for an alljar (aka uberjar). This will include all compiler
 version targets as well. Resulting in a large, but complete, set of documentation.
 
-EG: screenshot of a generated `docs/index.html` for a project:
+EG: screenshot of the generated `alldocs/index.html` for [docs.glngn.com](http://docs.glngn.com/latest/api/).
 
 ![index screenshot](https://github.com/glngn/sbt-alldocs/raw/master/screenshot.png "Screenshot of an example index")
 
@@ -19,7 +19,7 @@ This plugin requires sbt 1.0.0+
 This adds a command `allDocs` which:
 
 1. Collects all documentation artifacts for dependencies. This is all dependencies minus those in `allDocsExclusions`.
-2. Expands all documentation artifacts into `allDocsTargetDir`. Which defaults to `docs`.
+2. Expands all documentation artifacts into `allDocsTargetDir`. Which defaults to `alldocs`.
 3. Generates all documentation for all projects. These are copied under `allDocsTargetDir`.
 4. Finally, generates an `index.html` in `allDocsTargetDir` that is an index of all the collected documentation.
 
@@ -30,7 +30,7 @@ generate all docs then look at link text to determine `name`.
 
 * `allDocsExclusions` - Set of strings of the `name` for the document artifact to exclude.
 * `allDocsRenames` - Map of names to text. This is applied after exclusions.
-* `allDocsTargetDir` - Directory relative to root to output. Defaults to `docs`.
+* `allDocsTargetDir` - Directory relative to root to output. Defaults to `alldocs`.
 * `allDocsSections` - Map of regex to (priority, section text).
 
 EG:

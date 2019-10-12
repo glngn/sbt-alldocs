@@ -12,7 +12,7 @@ object AllDocsPlugin extends AutoPlugin {
   type SectionMap = (String, (Int, String))
 
   object autoImport {
-    val allDepDocArtifacts = taskKey[Vector[(Artifact, File)]]("all dependency documentation artifacts")
+    val allDepDocArtifacts = taskKey[Vector[(ModuleID, Artifact, File)]]("all dependency documentation artifacts")
     val allDocsExclusions = settingKey[Set[String]]("exact name, pre rename, of artifact documentation to exclude from index")
     val allDocsRenames = settingKey[Map[String, String]]("mapping of input name to output name. Applied once per artifact.")
     val allDocsSections = settingKey[Seq[SectionMap]]("names matching regex are placed under named section with sort priority")
@@ -24,11 +24,13 @@ object AllDocsPlugin extends AutoPlugin {
       val logger = streams.value.log
       val updateReport = updateClassifiers.value
 
-      updateReport.configurations flatMap (_.modules) flatMap (_.artifacts) filter { case (artifact, file) =>
-        val classifier = artifact.classifier
-        logger.debug(s"file = ${file}, classifier=${classifier}, extraAttributes=${artifact.extraAttributes}")
+      for {
+        module <- updateReport.configurations flatMap (_.modules)
+        (artifact, file) <- module.artifacts if artifact.classifier == Some("javadoc")
+      } yield {
+        logger.debug(s"file = ${file}, moduleId=${module.module}")
 
-        classifier == Some("javadoc")
+        (module.module, artifact, file)
       }
     },
     allDocsExclusions := Set.empty[String],
@@ -64,8 +66,8 @@ object AllDocsPlugin extends AutoPlugin {
   }
 
   case class DepDoc private (groupId: String,
-                             version: String,
                              name: String,
+                             version: String,
                              src: File) extends DocArtifact {
     def copyToIndex(indexDir: File): String = {
       val basename = s"${groupId}.${name}"
@@ -86,10 +88,8 @@ object AllDocsPlugin extends AutoPlugin {
   }
 
   object DepDoc {
-    def apply(artifact: Artifact, src: File): Option[DepDoc] = for {
-      groupId <- artifact.extraAttributes.get("groupId")
-      version <- artifact.extraAttributes.get("version")
-    } yield DepDoc(groupId, version, artifact.name, src)
+    def apply(moduleID: ModuleID, artifact: Artifact, src: File): DepDoc =
+      DepDoc(moduleID.organization, moduleID.name, moduleID.revision, src)
 
     case class UID(groupId: String, version: String, name: String)
   }
@@ -143,6 +143,7 @@ object AllDocsPlugin extends AutoPlugin {
         { docArtifactsIndex(logger, docsDir, exclusions, renames, docArtifacts) }
       </ul>
     }
+
 
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
       <head>
@@ -228,8 +229,8 @@ object AllDocsPlugin extends AutoPlugin {
         case Right(artifacts) => {
 
           val depDocs = for {
-            (artifact, file) <- artifacts.toSeq
-            depDoc <- DepDoc(artifact, file).toSeq if (!included(depDoc.uid))
+            (moduleID, artifact, file) <- artifacts.toSeq
+            depDoc = DepDoc(moduleID, artifact, file) if (!included(depDoc.uid))
           } yield {
             included += depDoc.uid
             depDoc

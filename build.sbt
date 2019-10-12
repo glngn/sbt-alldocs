@@ -5,9 +5,6 @@ ThisBuild / licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICE
 
 sbtPlugin := true
 
-// cannot use 2.0 due to https://github.com/glngn/sbt-alldocs/issues/1
-addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.3")
-
 // ScalaTest
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.1" % "test"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
