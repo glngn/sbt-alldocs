@@ -1,8 +1,6 @@
 # sbt-alldocs
 
-Put **all**ies for all compiler targets is, even on small projects, a large number of files to decompress from jar files. In particular, I've found windows to be exceptionally slow at this. The recommended pattern is for the organizations CI/CD to deploy this artifact to a local server.
-
-Failure to generate project documentation does not result in the command failing. The project documentation will be, however, missing from the index. The first part is intentional. The second part conta the documentation for a project in one place. Defaults to an `alldocs` folder under project root.
+Put **all** the documentation for a project in one place. Defaults to an `alldocs` folder under project root.
 Suitable for distribution of an alldocs for an alljar (aka uberjar). This will include all compiler
 version targets as well. Resulting in a large, but complete, set of documentation.
 
