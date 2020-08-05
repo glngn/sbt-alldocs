@@ -10,9 +10,20 @@ EG: screenshot of the generated `alldocs/index.html` for [docs.glngn.com](http:/
 
 ## Usage
 
+Add to `project/plugins.sbt`:
+
 ~~~
 addSbtPlugin("glngn" % "sbt-alldocs" % "0.2.1")
 ~~~
+
+At `sbt` prompt:
+
+~~~
+sbt> update
+sbt> allDocs
+~~~
+
+Open in web browser: `alldocs/index.html`.
 
 This plugin requires sbt 1.2.0+
 
