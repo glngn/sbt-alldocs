@@ -9,7 +9,7 @@ sbtPlugin := true
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.8" % "test"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 
-scalacOptions in Test ++= Seq("-Yrangepos")
+Test / scalacOptions ++= Seq("-Yrangepos")
 
 bintrayPackageLabels := Seq("sbt","plugin")
 bintrayVcsUrl := Some("""git@github.com:glngn/sbt-alldocs.git""")
@@ -19,7 +19,7 @@ publishMavenStyle := false
 crossSbtVersions := Vector("1.2.8", "1.3.2")
 crossScalaVersions := Vector("2.12.10")
 
-initialCommands in console := """import sbtalldocs._"""
+console / initialCommands := """import sbtalldocs._"""
 
 enablePlugins(ScriptedPlugin)
 enablePlugins(GitVersioning)

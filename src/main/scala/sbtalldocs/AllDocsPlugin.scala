@@ -212,7 +212,7 @@ object AllDocsPlugin extends AutoPlugin {
     val logger = state0.log
     val included = mutable.Set(alreadyIncluded.toSeq: _*)
 
-    Project.runTask(allDepDocArtifacts in projectRef, state0) match {
+    Project.runTask(projectRef / allDepDocArtifacts, state0) match {
       case None => {
         logger.info(s"no result for ${projectRef}")
 
@@ -250,10 +250,10 @@ object AllDocsPlugin extends AutoPlugin {
     val index0: Index = Map.empty
     val alreadyIncluded0 = Set.empty[DepDoc.UID]
 
-    val exclusions = allDocsExclusions in Global get structure.data get
-    val renames = allDocsRenames in Global get structure.data get
-    val sectionsDef = allDocsSections in Global get structure.data get
-    val docsDir = IO.toFile(structure.root) / (allDocsTargetDir in Global get structure.data get)
+    val exclusions = Global / allDocsExclusions get structure.data get
+    val renames = Global / allDocsRenames get structure.data get
+    val sectionsDef = Global / allDocsSections get structure.data get
+    val docsDir = IO.toFile(structure.root) / (Global / allDocsTargetDir get structure.data get)
 
     val sectionSelector = sectionSelectorForDef(sectionsDef)
 
