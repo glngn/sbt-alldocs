@@ -166,7 +166,7 @@ object AllDocsPlugin extends AutoPlugin {
 
     withoutExclusions map { doc =>
       logger.info(s"doc = ${doc}")
-      val name: String = doc.name
+      val name: String = doc.name.stripSuffix("_2.12").stripSuffix("_2.13").stripSuffix("_3")
 
       val subpath: String = {
         val basename = doc.copyToIndex(indexDir)
@@ -200,7 +200,14 @@ object AllDocsPlugin extends AutoPlugin {
         }
 
         case Right(dir) => {
-          (state1, Seq(ProjectDoc(projectRef.project, dir)))
+          val ext = Project.extract(state0)
+          import ext.structure
+          val projectName = (projectRef / name) get structure.data getOrElse projectRef.project
+
+          (projectRef / organization) get structure.data match {
+            case None => (state1, Seq(ProjectDoc(projectName, dir)))
+            case Some(projectOrg) => (state1, Seq(ProjectDoc(s"$projectOrg.$projectName", dir)))
+          }
         }
       }
     }
@@ -245,7 +252,7 @@ object AllDocsPlugin extends AutoPlugin {
   lazy val allDocsCmd = Command.command("allDocs") { state0 =>
     val logger = state0.log
     val ext = Project.extract(state0)
-    import ext._
+    import ext.structure
 
     val index0: Index = Map.empty
     val alreadyIncluded0 = Set.empty[DepDoc.UID]

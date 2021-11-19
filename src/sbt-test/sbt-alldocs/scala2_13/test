@@ -2,5 +2,5 @@
 > allDocs
 # $ pause
 $ exists alldocs/index.html
-$ exists alldocs/scala2_13
+$ exists alldocs/scala2_13.scala2_13
 $ exists alldocs/org.scala-lang.scala-library/index.html
