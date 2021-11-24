@@ -1,4 +1,4 @@
-ThisBuild / organization := "glngn"
+ThisBuild / organization := "com.glngn"
 ThisBuild / description := "Collect all docs into docs"
 ThisBuild / licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
 ThisBuild / crossSbtVersions := Vector("1.3.13", "1.4.9")
@@ -14,12 +14,6 @@ lazy val root = (project in file("."))
       libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 
       Test / scalacOptions ++= Seq("-Yrangepos")
-
-      bintrayPackageLabels := Seq("sbt","plugin")
-      bintrayVcsUrl := Some("""git@github.com:glngn/sbt-alldocs.git""")
-      bintrayOrganization := Some("glngn")
-      bintrayRepository := "sbt-plugins"
-      publishMavenStyle := false
 
       console / initialCommands := """import sbtalldocs._"""
 
