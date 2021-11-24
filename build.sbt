@@ -4,7 +4,7 @@ ThisBuild / licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICE
 ThisBuild / crossSbtVersions := Vector("1.3.13", "1.4.9")
 
 lazy val root = (project in file("."))
-  .enablePlugins(SbtPlugin, GitVersioning)
+  .enablePlugins(SbtPlugin)
   .settings(
     nocomma {
       name := """sbt-alldocs"""
@@ -22,8 +22,6 @@ lazy val root = (project in file("."))
       publishMavenStyle := false
 
       console / initialCommands := """import sbtalldocs._"""
-
-      git.baseVersion := "0.1.5"
 
       // set up 'scripted; sbt plugin for testing sbt plugins
       scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value)

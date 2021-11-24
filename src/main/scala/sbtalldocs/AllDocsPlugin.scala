@@ -13,10 +13,18 @@ object AllDocsPlugin extends AutoPlugin {
 
   object autoImport {
     val allDepDocArtifacts = taskKey[Vector[(ModuleID, Artifact, File)]]("all dependency documentation artifacts")
-    val allDocsExclusions = settingKey[Set[String]]("exact name, pre rename, of artifact documentation to exclude from index")
-    val allDocsRenames = settingKey[Map[String, String]]("mapping of input name to output name. Applied once per artifact.")
-    val allDocsSections = settingKey[Seq[SectionMap]]("names matching regex are placed under named section with sort priority")
-    val allDocsTargetDir = settingKey[String]("Directory relative to root the documentation should be placed")
+    val allDocsExclusions = settingKey[Set[String]](
+      "exact name, pre rename, of artifact documentation to exclude from index"
+    ).withRank(KeyRanks.Invisible)
+    val allDocsRenames = settingKey[Map[String, String]](
+      "mapping of input name to output name. Applied once per artifact."
+    ).withRank(KeyRanks.Invisible)
+    val allDocsSections = settingKey[Seq[SectionMap]](
+      "names matching regex are placed under named section with sort priority"
+    ).withRank(KeyRanks.Invisible)
+    val allDocsTargetDir = settingKey[String](
+      "Directory relative to root the documentation should be placed"
+    ).withRank(KeyRanks.Invisible)
   }
 
   override def projectSettings = Seq(
