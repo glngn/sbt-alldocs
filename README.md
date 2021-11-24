@@ -13,7 +13,7 @@ EG: screenshot of the generated `alldocs/index.html` for [docs.glngn.com](http:/
 Add to `project/plugins.sbt`:
 
 ~~~
-addSbtPlugin("glngn" % "sbt-alldocs" % "0.2.1")
+addSbtPlugin("com.glngn" % "sbt-alldocs" % "0.2.2")
 ~~~
 
 At `sbt` prompt:
@@ -65,8 +65,7 @@ Run `scripted` for [sbt script tests](http://www.scala-sbt.org/1.x/docs/Testing-
 
 ## TODO
 
-2. [Add your plugin to the community plugins list](https://github.com/sbt/website#attention-plugin-authors)
-3. [Claim your project an Scaladex](https://github.com/scalacenter/scaladex-contrib#claim-your-project)
+1. [Claim your project an Scaladex](https://github.com/scalacenter/scaladex-contrib#claim-your-project)
 
 ## Notes
 
