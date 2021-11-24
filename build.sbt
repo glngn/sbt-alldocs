@@ -1,4 +1,6 @@
 ThisBuild / organization := "com.glngn"
+ThisBuild / organizationName := "glngn"
+ThisBuild / organizationHomepage := Some(url("https://dogheadbone.com"))
 ThisBuild / description := "Collect all docs into docs"
 ThisBuild / licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
 ThisBuild / crossSbtVersions := Vector("1.3.13", "1.4.9")
