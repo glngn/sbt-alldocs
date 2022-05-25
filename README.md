@@ -19,8 +19,7 @@ addSbtPlugin("com.glngn" % "sbt-alldocs" % "0.2.2")
 At `sbt` prompt:
 
 ~~~
-sbt> update
-sbt> allDocs
+sbt> update ; allDocs
 ~~~
 
 Open in web browser: `alldocs/index.html`.
