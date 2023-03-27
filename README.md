@@ -13,7 +13,7 @@ EG: screenshot of the generated `alldocs/index.html` for [docs.glngn.com](http:/
 Add to `project/plugins.sbt`:
 
 ~~~
-addSbtPlugin("com.glngn" % "sbt-alldocs" % "0.2.2")
+addSbtPlugin("com.glngn" % "sbt-alldocs" % "0.2.1")
 ~~~
 
 At `sbt` prompt:
