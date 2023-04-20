@@ -1,25 +1,24 @@
+enablePlugins(ScriptedPlugin)
+
 ThisBuild / organization := "com.glngn"
 ThisBuild / organizationName := "glngn"
 ThisBuild / organizationHomepage := Some(url("https://dogheadbone.com"))
 ThisBuild / description := "Collect all docs into docs"
 ThisBuild / licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
-ThisBuild / crossSbtVersions := Vector("1.3.13", "1.4.9")
 
-lazy val root = (project in file("."))
-  .enablePlugins(SbtPlugin)
-  .settings(
-    nocomma {
-      name := """sbt-alldocs"""
+sbtPlugin := true
+scalaVersion := "2.12.17"
 
-      // ScalaTest
-      libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.8" % "test"
-      libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+name := """sbt-alldocs"""
 
-      Test / scalacOptions ++= Seq("-Yrangepos")
+// ScalaTest
+// libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.15" % "test"
+// libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 
-      console / initialCommands := """import sbtalldocs._"""
+Test / scalacOptions ++= Seq("-Yrangepos")
 
-      // set up 'scripted; sbt plugin for testing sbt plugins
-      scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
-    }
-  )
+console / initialCommands := """import sbtalldocs._"""
+
+// set up 'scripted; sbt plugin for testing sbt plugins
+scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+scriptedBufferLog := false
