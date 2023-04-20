@@ -5,115 +5,10 @@ import scala.xml
 import scala.util.Try
 import scala.collection.mutable
 
-object AllDocsPlugin extends AutoPlugin {
-  import autoImport._
-  import Keys._
+import Keys._
 
-  type SectionMap = (String, (Int, String))
-
-  object autoImport {
-    val allDepDocArtifacts = taskKey[Vector[(ModuleID, Artifact, File)]]("all dependency documentation artifacts")
-    val allDocsExclusions = settingKey[Set[String]](
-      "exact name, pre rename, of artifact documentation to exclude from index"
-    ).withRank(KeyRanks.Invisible)
-    val allDocsRenames = settingKey[Map[String, String]](
-      "mapping of input name to output name. Applied once per artifact."
-    ).withRank(KeyRanks.Invisible)
-    val allDocsSections = settingKey[Seq[SectionMap]](
-      "names matching regex are placed under named section with sort priority"
-    ).withRank(KeyRanks.Invisible)
-    val allDocsTargetDir = settingKey[String](
-      "Directory relative to root the documentation should be placed"
-    ).withRank(KeyRanks.Invisible)
-  }
-
-  override def projectSettings = Seq(
-    allDepDocArtifacts := {
-      val logger = streams.value.log
-      val updateReport = updateClassifiers.value
-
-      for {
-        module <- updateReport.configurations flatMap (_.modules)
-        (artifact, file) <- module.artifacts if artifact.classifier == Some("javadoc")
-      } yield {
-        logger.debug(s"file = ${file}, moduleId=${module.module}")
-
-        (module.module, artifact, file)
-      }
-    },
-    allDocsExclusions := Set.empty[String],
-    allDocsRenames := Map.empty[String, String],
-    allDocsSections := Seq.empty[SectionMap]
-  )
-
-  // too broad
-  val scopeToAggregrate = ScopeFilter(inAnyProject, inAnyConfiguration)
-
-  override def globalSettings = Seq(
-    commands += allDocsCmd,
-    allDocsExclusions := {
-      (allDocsExclusions ?? Set.empty[String]).all(scopeToAggregrate).value.toSet.flatten
-    },
-    allDocsRenames := {
-      (allDocsRenames ?? Map.empty[String, String]).all(scopeToAggregrate)
-        .value
-        .foldLeft(Map.empty[String, String])( (acc, renames) => acc ++ renames )
-    },
-    allDocsSections := {
-      (allDocsSections ?? Seq.empty[SectionMap]).all(scopeToAggregrate).value.flatten
-    },
-    allDocsTargetDir := "alldocs"
-  )
-
-  override def trigger: PluginTrigger = allRequirements
-
-  sealed trait DocArtifact {
-    val name: String
-    val src: File
-    def copyToIndex(indexDir: File): String
-  }
-
-  case class DepDoc private (groupId: String,
-                             name: String,
-                             version: String,
-                             src: File) extends DocArtifact {
-    def copyToIndex(indexDir: File): String = {
-      val basename = s"${groupId}.${name}"
-      val targetDir = indexDir / basename
-
-      val tmpDir = IO.createTemporaryDirectory
-      IO.unzip(src, tmpDir)
-      IO.copyDirectory(tmpDir,
-                       targetDir,
-                       overwrite = true,
-                       preserveLastModified = true)
-
-      basename
-    }
-
-    def uid: DepDoc.UID =
-      DepDoc.UID(groupId, version, name)
-  }
-
-  object DepDoc {
-    def apply(moduleID: ModuleID, artifact: Artifact, src: File): DepDoc =
-      DepDoc(moduleID.organization, moduleID.name, moduleID.revision, src)
-
-    case class UID(groupId: String, version: String, name: String)
-  }
-
-  case class ProjectDoc(name: String, src: File) extends DocArtifact {
-    def copyToIndex(indexDir: File): String = {
-      val targetDir = indexDir / name
-      IO.copyDirectory(src,
-                       targetDir,
-                       overwrite = true,
-                       preserveLastModified = true)
-      name
-    }
-  }
-
-  type SectionSelector = String => (Int, String)
+object AllDocs {
+  import AllDocsPlugin.autoImport._
 
   def sectionSelectorForDef(sectionsDef: Seq[SectionMap]): SectionSelector = {
     val regexMap = sectionsDef.map {
@@ -129,10 +24,6 @@ object AllDocsPlugin extends AutoPlugin {
       } getOrElse (999, "Other")
     }
   }
-
-  type Index = Map[Int, Map[String, List[DocArtifact]]]
-
-  type IndexSection = (String, List[DocArtifact])
 
   def indexSections(index: Index): List[IndexSection] =
     index.toList.sortBy(_._1).map { case (_, section) =>
@@ -257,7 +148,7 @@ object AllDocsPlugin extends AutoPlugin {
     }
   }
 
-  lazy val allDocsCmd = Command.command("allDocs") { state0 =>
+  def command(state0: State): State = {
     val logger = state0.log
     val ext = Project.extract(state0)
     import ext.structure
@@ -321,4 +212,68 @@ object AllDocsPlugin extends AutoPlugin {
 
     state
   }
+}
+
+object AllDocsPlugin extends AutoPlugin {
+  import autoImport._
+  import Keys._
+
+  object autoImport {
+    val allDepDocArtifacts = taskKey[Vector[(ModuleID, Artifact, File)]]("all dependency documentation artifacts")
+    val allDocsExclusions = settingKey[Set[String]](
+      "exact name, pre rename, of artifact documentation to exclude from index"
+    ).withRank(KeyRanks.Invisible)
+    val allDocsRenames = settingKey[Map[String, String]](
+      "mapping of input name to output name. Applied once per artifact."
+    ).withRank(KeyRanks.Invisible)
+    val allDocsSections = settingKey[Seq[SectionMap]](
+      "names matching regex are placed under named section with sort priority"
+    ).withRank(KeyRanks.Invisible)
+    val allDocsTargetDir = settingKey[String](
+      "Directory relative to root the documentation should be placed"
+    ).withRank(KeyRanks.Invisible)
+  }
+
+  override def projectSettings = Seq(
+    allDepDocArtifacts / updateOptions := updateOptions.value.withCachedResolution(false),
+    allDepDocArtifacts := {
+      val logger = streams.value.log
+      val updateReport = updateClassifiers.value
+
+      for {
+        module <- updateReport.configurations flatMap (_.modules)
+        (artifact, file) <- module.artifacts if artifact.classifier == Some("javadoc")
+      } yield {
+        logger.debug(s"file = ${file}, moduleId=${module.module}")
+
+        (module.module, artifact, file)
+      }
+    },
+    allDocsExclusions := Set.empty[String],
+    allDocsRenames := Map.empty[String, String],
+    allDocsSections := Seq.empty[SectionMap]
+  )
+
+  // too broad
+  val scopeToAggregrate = ScopeFilter(inAnyProject, inAnyConfiguration)
+
+  override def globalSettings = Seq(
+    commands += allDocsCmd,
+    allDocsExclusions := {
+      (allDocsExclusions ?? Set.empty[String]).all(scopeToAggregrate).value.toSet.flatten
+    },
+    allDocsRenames := {
+      (allDocsRenames ?? Map.empty[String, String]).all(scopeToAggregrate)
+        .value
+        .foldLeft(Map.empty[String, String])( (acc, renames) => acc ++ renames )
+    },
+    allDocsSections := {
+      (allDocsSections ?? Seq.empty[SectionMap]).all(scopeToAggregrate).value.flatten
+    },
+    allDocsTargetDir := "alldocs"
+  )
+
+  override def trigger: PluginTrigger = allRequirements
+
+  lazy val allDocsCmd = Command.command("allDocs")(AllDocs.command)
 }
