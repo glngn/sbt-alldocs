@@ -42,6 +42,9 @@ object AllDocs {
                          index: Index): xml.Node = {
 
     val viewConfigsHTML = {
+      // only link to a named doc the first time
+      val included = mutable.Set.empty[String]
+
       val viewConfigs = indexViewConfigs(index)
 
       viewConfigs map { viewConfig =>
@@ -49,10 +52,16 @@ object AllDocs {
         logger.info(s"sections = $sections")
 
         val sectionsHTML = sections.map { case (sectionName, docArtifacts) =>
-          <h3>{ sectionName }</h3>
-          <ul>
-            { docArtifactsIndex(logger, docsDir, exclusions, renames, docArtifacts) }
-          </ul>
+          val sectionContents = docArtifactsIndex(logger, docsDir, exclusions, renames, docArtifacts, included)
+
+          if (sectionContents.nonEmpty) {
+            <h3>{ sectionName }</h3>
+            <ul>
+              { sectionContents }
+            </ul>
+          } else {
+            Seq.empty
+          }
         }
 
         <h2>{ viewConfig }</h2>
@@ -78,25 +87,32 @@ object AllDocs {
                         indexDir: File,
                         exclusions: Set[String],
                         renames: Map[String, String],
-                        docs: Vector[DocArtifact]): Seq[xml.Node] = {
+                        docs: Vector[DocArtifact],
+                        included: mutable.Set[String]): Seq[xml.Node] = {
     val sortedArtifacts = docs.toSeq.sortBy(_.name)
     val withoutExclusions = sortedArtifacts.filter(exclusions contains _.name unary_!)
 
-    withoutExclusions map { doc =>
+    withoutExclusions flatMap { doc =>
       logger.info(s"doc = ${doc}")
       val name: String = doc.name.stripSuffix("_2.12").stripSuffix("_2.13").stripSuffix("_3")
 
-      val subpath: String = {
-        val basename = doc.copyToIndex(indexDir)
+      if (!included(name)) {
+        included.add(name)
 
-        s"${basename}/index.html"
-      }
+        val subpath: String = {
+          val basename = doc.copyToIndex(indexDir)
 
-      val displayName = renames.get(name) getOrElse name
+          s"${basename}/index.html"
+        }
 
-      <li>
-        <a href={ subpath }>{ displayName }</a>
-      </li>
+        val displayName = renames.get(name) getOrElse name
+
+        Seq(
+          <li>
+            <a href={ subpath }>{ displayName }</a>
+          </li>
+        )
+      } else Seq.empty[xml.Node]
     }
   }
 
