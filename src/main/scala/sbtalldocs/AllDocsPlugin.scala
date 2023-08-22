@@ -11,8 +11,9 @@ object AllDocs {
   import AllDocsPlugin.autoImport._
 
   def sectionSelectorForDef(sectionsDef: Seq[SectionMap]): SectionSelector = {
+    // anchor only to start
     val regexMap = sectionsDef.map {
-      case (r, (p, n)) => (p, ("^" + r + "$").r, n)
+      case (r, (p, n)) => (p, ("^" + r).r, n)
     }
 
     val matchSeq = regexMap.sortBy(_._1)
@@ -25,10 +26,14 @@ object AllDocs {
     }
   }
 
-  def indexSections(index: Index): List[IndexSection] =
-    index.toList.sortBy(_._1).map { case (_, section) =>
-      section.toList.sortBy(_._1)
-    } flatten
+  def indexViewConfigs(index: Index): List[ViewConfig] = index.keys.map(_._1).toList
+
+  def indexSections(index: Index, viewConfig: ViewConfig): Vector[(Section, Vector[DocArtifact])] =
+    index.toVector collect {
+      case ((config, priority, section), artifacts) if config == viewConfig => (priority, section, artifacts)
+    } sortBy(_._1) map { case (_, section, artifacts) =>
+      (section, artifacts.sortBy(_.name))
+    }
 
   def allDocsIndexSource(logger: Logger,
                          docsDir: File,
@@ -36,11 +41,25 @@ object AllDocs {
                          renames: Map[String, String],
                          index: Index): xml.Node = {
 
-    val sectionsHTML = indexSections(index).map { case (sectionName, docArtifacts) =>
-      <h2>{ sectionName }</h2>
-      <ul>
-        { docArtifactsIndex(logger, docsDir, exclusions, renames, docArtifacts) }
-      </ul>
+    val viewConfigsHTML = {
+      val viewConfigs = indexViewConfigs(index)
+
+      viewConfigs map { viewConfig =>
+        val sections = indexSections(index, viewConfig)
+        logger.info(s"sections = $sections")
+
+        val sectionsHTML = sections.map { case (sectionName, docArtifacts) =>
+          <h3>{ sectionName }</h3>
+          <ul>
+            { docArtifactsIndex(logger, docsDir, exclusions, renames, docArtifacts) }
+          </ul>
+        }
+
+        <h2>{ viewConfig }</h2>
+        <div class="section">
+          { sectionsHTML }
+        </div>
+      }
     }
 
 
@@ -50,7 +69,7 @@ object AllDocs {
         <title>Doc Index</title>
       </head>
       <body>
-        { sectionsHTML }
+        { viewConfigsHTML }
       </body>
     </html>
   }
@@ -59,7 +78,7 @@ object AllDocs {
                         indexDir: File,
                         exclusions: Set[String],
                         renames: Map[String, String],
-                        docs: List[DocArtifact]): Seq[xml.Node] = {
+                        docs: Vector[DocArtifact]): Seq[xml.Node] = {
     val sortedArtifacts = docs.toSeq.sortBy(_.name)
     val withoutExclusions = sortedArtifacts.filter(exclusions contains _.name unary_!)
 
@@ -135,8 +154,8 @@ object AllDocs {
         case Right(artifacts) => {
 
           val depDocs = for {
-            (moduleID, artifact, file) <- artifacts.toSeq
-            depDoc = DepDoc(moduleID, artifact, file) if (!included(depDoc.uid))
+            (config, moduleID, artifact, file) <- artifacts.toSeq
+            depDoc = DepDoc(config, moduleID, artifact, file) if (!included(depDoc.uid))
           } yield {
             included += depDoc.uid
             depDoc
@@ -178,18 +197,12 @@ object AllDocs {
 
         // TODO: depend on a library that includes map monoid. a bit heavy to include right now.
         val indexN = thisDocs.foldLeft(indexM) { (indexAcc: Index, docArtifact: DocArtifact) =>
-          val (p, n) = sectionSelector(docArtifact.name)
-          indexAcc.get(p) match {
-            case Some(section) => {
-              val docArtifacts = section.get(n) match {
-                case Some(artifacts) => docArtifact :: artifacts
-                case None => List(docArtifact)
-              }
-              indexAcc.updated(p, section.updated(n, docArtifacts))
-            }
-            case None => {
-              indexAcc.updated(p, Map(n -> List(docArtifact)))
-            }
+          val config = docArtifact.config
+          val (priority, section) = sectionSelector(docArtifact.name)
+
+          indexAcc.get((config, priority, section)) match {
+            case None => indexAcc.updated((config, priority, section), Vector(docArtifact))
+            case Some(artifacts) => indexAcc.updated((config, priority, section), docArtifact +: artifacts)
           }
         }
 
@@ -219,19 +232,30 @@ object AllDocsPlugin extends AutoPlugin {
   import Keys._
 
   object autoImport {
-    val allDepDocArtifacts = taskKey[Vector[(ModuleID, Artifact, File)]]("all dependency documentation artifacts")
+    val allDepDocArtifacts = taskKey[Vector[(ConfigRef, ModuleID, Artifact, File)]]("all dependency documentation artifacts").withRank(KeyRanks.Invisible)
+    val allDocsConfigs = settingKey[Set[ConfigRef]](
+      "Configs to include in the index. Each config contains all the allDocsSections sections with at least one package for that config."
+    )
+
+    val allDocsConfigRemaps = settingKey[Map[ConfigRef, ConfigRef]](
+      "remap from one to config to another prior to placing in a top level section"
+    )
+
     val allDocsExclusions = settingKey[Set[String]](
       "exact name, pre rename, of artifact documentation to exclude from index"
-    ).withRank(KeyRanks.Invisible)
+    )
+
     val allDocsRenames = settingKey[Map[String, String]](
       "mapping of input name to output name. Applied once per artifact."
-    ).withRank(KeyRanks.Invisible)
+    )
+
     val allDocsSections = settingKey[Seq[SectionMap]](
       "names matching regex are placed under named section with sort priority"
-    ).withRank(KeyRanks.Invisible)
+    )
+
     val allDocsTargetDir = settingKey[String](
       "Directory relative to root the documentation should be placed"
-    ).withRank(KeyRanks.Invisible)
+    )
   }
 
   override def projectSettings = Seq(
@@ -240,25 +264,41 @@ object AllDocsPlugin extends AutoPlugin {
       val logger = streams.value.log
       val updateReport = updateClassifiers.value
 
+      val configSet = allDocsConfigs.value
+      val includeConfig: ConfigRef => Option[ConfigRef] = { configRef =>
+        val viewConfig = allDocsConfigRemaps.value.get(configRef) getOrElse configRef
+        if (configSet.contains(viewConfig)) Some(viewConfig) else None
+      }
+
       for {
-        module <- updateReport.configurations flatMap (_.modules)
+        config <- updateReport.configurations
+        viewConfig <- includeConfig(config.configuration).toSeq
+        module <- config.modules
         (artifact, file) <- module.artifacts if artifact.classifier == Some("javadoc")
       } yield {
-        logger.debug(s"file = ${file}, moduleId=${module.module}")
+        logger.debug(s"viewConfig = ${viewConfig}, file = ${file}, moduleId=${module.module}")
 
-        (module.module, artifact, file)
+        (viewConfig, module.module, artifact, file)
       }
     },
+    allDocsConfigs := Set(ConfigRef("compile"), ConfigRef("test")),
+    allDocsConfigRemaps := Map.empty[ConfigRef, ConfigRef],
     allDocsExclusions := Set.empty[String],
     allDocsRenames := Map.empty[String, String],
     allDocsSections := Seq.empty[SectionMap]
   )
 
   // too broad
-  val scopeToAggregrate = ScopeFilter(inAnyProject, inAnyConfiguration)
+  private val scopeToAggregrate = ScopeFilter(inAnyProject, inAnyConfiguration)
 
   override def globalSettings = Seq(
     commands += allDocsCmd,
+    allDocsConfigs := {
+      (allDocsConfigs ?? Set.empty[ConfigRef]).all(scopeToAggregrate).value.toSet.flatten
+    },
+    allDocsConfigRemaps := {
+      (allDocsConfigRemaps ?? Map.empty[ConfigRef, ConfigRef]).all(scopeToAggregrate).value.map(_.toList).flatten.toMap
+    },
     allDocsExclusions := {
       (allDocsExclusions ?? Set.empty[String]).all(scopeToAggregrate).value.toSet.flatten
     },
