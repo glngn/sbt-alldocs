@@ -4,7 +4,7 @@ Put **all** the documentation for a project in one place. Defaults to an `alldoc
 Suitable for distribution of an alldocs for an alljar (aka uberjar). This will include all dependencies and all compiler
 version targets. The result is a large but complete set of documentation.
 
-EG: screenshot of the generated `alldocs/index.html` for [docs.glngn.com](http://docs.glngn.com/latest/api/).
+EG: screenshot of the generated `alldocs/index.html` a small project:
 
 ![index screenshot](https://github.com/glngn/sbt-alldocs/blob/main/screenshot.png?raw=true "Screenshot of an example index")
 
