@@ -6,7 +6,7 @@ version targets. The result is a large but complete set of documentation.
 
 EG: screenshot of the generated `alldocs/index.html` for [docs.glngn.com](http://docs.glngn.com/latest/api/).
 
-![index screenshot](https://github.com/glngn/sbt-alldocs/raw/master/screenshot.png?raw=true "Screenshot of an example index")
+![index screenshot](https://github.com/glngn/sbt-alldocs/blob/main/screenshot.png?raw=true "Screenshot of an example index")
 
 ## Usage
 
